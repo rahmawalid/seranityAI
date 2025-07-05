@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ui_screens_grad/models/doctor.dart';
+import 'package:ui_screens_grad/models/doctor_model.dart';
 
 Future<void> savePreferencesInfo(Doctor doctorInfo) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();

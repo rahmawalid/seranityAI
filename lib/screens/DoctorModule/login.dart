@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:ui_screens_grad/constants/functions.dart';
-import 'package:ui_screens_grad/models/doctor.dart';
+import 'package:ui_screens_grad/models/doctor_model.dart';
 import 'package:ui_screens_grad/screens/DoctorModule/signup_personal_screen.dart';
-import 'package:ui_screens_grad/screens/DoctorModule/home.dart'; // home.dart = DoctorHomePage
+import 'package:ui_screens_grad/screens/DoctorModule/doctor_main_layout.dart';
 import 'package:ui_screens_grad/services/doctor_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,210 +18,251 @@ class _LoginScreenState extends State<LoginScreen> {
   String selectedRole = "Doctor";
   final _passController = TextEditingController();
   final _emailController = TextEditingController();
+  bool _isButtonEnabled = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Row(
-            children: [
-              // LEFT SIDE
-              Expanded(
-                flex: 3,
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFBEA9F9), Color(0xFFB4E5F9)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 80,
-                      left: 60,
-                      child: Image.asset('assets/images/five_lenses.png',
-                          width: 460),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Image.asset('assets/images/two_lenses.png',
-                          width: 300),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 60, top: 160),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/login.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: LayoutBuilder(
+          builder: (context, _) {
+            return Row(
+              children: [
+                // LEFT SIDE
+                Expanded(
+                  flex: 3,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 60, top: 40),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Sign Up to',
-                            style: TextStyle(
-                              fontSize: 38,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Image.asset(
+                            'assets/images/logo_white.png',
+                            width: 48,
                           ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Lorem Ipsum is simply',
-                            style: TextStyle(fontSize: 22, color: Colors.white),
-                          ),
-                          SizedBox(height: 20),
-                          SizedBox(
-                            width: 400,
-                            child: Text(
-                              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s.',
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 40,
-                      left: 60,
-                      child: Row(
-                        children: [
-                          const Text('Login as',
-                              style:
-                              TextStyle(fontSize: 18, color: Colors.white)),
-                          const SizedBox(width: 20),
-                          GestureDetector(
-                            onTap: () =>
-                                setState(() => selectedRole = "Doctor"),
-                            child: _roleCard("Doctor",
-                                isSelected: selectedRole == "Doctor"),
-                          ),
-                          const SizedBox(width: 20),
-                          GestureDetector(
-                            onTap: () => setState(() => selectedRole = "User"),
-                            child: _roleCard("User",
-                                isSelected: selectedRole == "User"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // RIGHT SIDE
-              Expanded(
-                flex: 4,
-                child: Center(
-                  child: Container(
-                    width: 540,
-                    padding: const EdgeInsets.all(30),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12.withOpacity(0.15),
-                          blurRadius: 35,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text.rich(
-                              TextSpan(
-                                text: 'Welcome to ',
-                                children: [
-                                  TextSpan(
-                                    text: 'LOREM',
-                                    style: TextStyle(color: Colors.blue),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
+                          const SizedBox(height: 60),
+                          const Text.rich(
+                            TextSpan(
+                              text: 'Login to ',
+                              style: TextStyle(
+                                  fontSize: 38,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                               children: [
-                                Text("Don't have an Account?",
-                                    style: TextStyle(fontSize: 12)),
-                                SizedBox(width: 4),
-                                Text(
-                                  "Contact Us",
+                                TextSpan(
+                                  text: 'SerenityAI',
                                   style: TextStyle(
-                                      fontSize: 12, color: Colors.blue),
+                                      fontSize: 38,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          "Login",
-                          style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 20),
-                        inputField('Email Address', 'Enter your email',
-                            controller: _emailController),
-                        inputField('Password', 'Enter your password',
-                            controller: _passController),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2F3C58),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
                             ),
-                            onPressed: () async {
-                              var loginResponse = await DoctorService()
-                                  .loginDoctor(_emailController.text,
-                                  _passController.text);
-                              String docId =
-                              loginResponse['doctor_ID'].toString();
-                              final Map<String, dynamic> doctorMap =
-                              loginResponse['doctor_info']
-                              as Map<String, dynamic>;
-
-                              if (docId != "error") {
-                                final Doctor doctor =
-                                Doctor.fromJson(doctorMap);
-                                savePreferencesInfo(doctor);
-                                Navigator.push(
+                          ),
+                          const SizedBox(height: 16),
+                          const SizedBox(
+                            width: 400,
+                            child: Text(
+                              'Securely access SerenityAI to monitor sessions, manage patients, and gain AI-driven insights.',
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                    const DoctorHomePage(), // ✅ fixed
+                                    builder: (_) => const SignupPersonalScreen(),
                                   ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Invalid credentials"),
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(color: Color(0xFF5A6BFF)),
+                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                );
-                              }
-                            },
-                            child: const Text("Login"), // 🔄 optional fix
+                                  child: const Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                        color: Color(0xFF5A6BFF), fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF5A6BFF),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: const Text(
+                                  'Log In',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const Spacer(),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              'Login as',
+                              style: TextStyle(fontSize: 18, color: Colors.black),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => setState(() => selectedRole = "Doctor"),
+                                child: _roleCard("Doctor", isSelected: selectedRole == "Doctor"),
+                              ),
+                              const SizedBox(width: 20),
+                              GestureDetector(
+                                onTap: () => setState(() => selectedRole = "User"),
+                                child: _roleCard("User", isSelected: selectedRole == "User"),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              )
-            ],
-          );
-        },
+                Expanded(
+                  flex: 4,
+                  child: Center(
+                    child: Container(
+                      width: 540,
+                      padding: const EdgeInsets.all(30),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12.withOpacity(0.15),
+                            blurRadius: 35,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  text: 'Welcome to ',
+                                  children: [
+                                    TextSpan(
+                                      text: 'SerenityAI',
+                                      style: TextStyle(color: Colors.blue),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text("Don't have an Account?", style: TextStyle(fontSize: 12)),
+                                  SizedBox(width: 4),
+                                  Text("Contact Us", style: TextStyle(fontSize: 12, color: Colors.blue)),
+                                ],
+                              )
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Text("Login", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 20),
+                          inputField('Email Address', 'Enter your email', controller: _emailController),
+                          inputField('Password', 'Enter your password', controller: _passController, obscureText: true),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF5A6BFF),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _isButtonEnabled
+                                  ? () async {
+                                      setState(() => _isButtonEnabled = false);
+                                      try {
+                                        var resp = await DoctorService().loginDoctor(
+                                          _emailController.text,
+                                          _passController.text,
+                                        );
+                                        final doc = Doctor.fromJson(resp['doctor_info'] as Map<String, dynamic>);
+
+                                        if (!doc.emailVerified) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                              title: const Text("Email Not Verified"),
+                                              content: const Text("Please verify your email before logging in."),
+                                              actions: [
+                                                TextButton(
+                                                  child: const Text("Resend Email"),
+                                                  onPressed: () async {
+                                                    await DoctorService().resendVerificationEmail(doc.personalInfo.email);
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                                TextButton(
+                                                  child: const Text("OK"),
+                                                  onPressed: () => Navigator.pop(context),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          setState(() => _isButtonEnabled = true);
+                                          return;
+                                        }
+
+                                        savePreferencesInfo(doc);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => const UnifiedDoctorLayout(),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        setState(() => _isButtonEnabled = true);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text("Login failed: $e")),
+                                        );
+                                      }
+                                    }
+                                  : null,
+                              child: const Text("Login", style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -248,6 +289,31 @@ class _LoginScreenState extends State<LoginScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w500,
               color: isSelected ? Colors.white : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget inputField(String label, String hint,
+      {required TextEditingController controller, bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              hintText: hint,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             ),
           ),
         ],

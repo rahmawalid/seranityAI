@@ -13,10 +13,22 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   table_calendar: ^3.0.9
-  file_picker: ^6.1.1
-  http: ^0.13.6
+  #file_picker: ^6.1.1
+  file_picker: ^6.1.2
+  http: 1.1.0
   provider: ^6.0.0
   shared_preferences: ^2.2.3
+  url_launcher: ^6.1.14
+
+  pdfx: ^2.6.0
+  syncfusion_flutter_pdfviewer: ^23.2.7
+
+  path_provider: ^2.0.15
+  permission_handler: ^10.4.3
+
+  desktop_drop: ^0.4.4
+
+  
 
 dev_dependencies:
   flutter_test:
@@ -36,3 +48,8 @@ flutter:
     - assets/images/upload.png
     - assets/images/FER.png
     - assets/images/TOV.png
+    - assets/images/logo_white.png
+    - assets/images/checkmark.png
+    - assets/images/Home_Page_BG.png
+    - assets/images/Login.png
+    - assets/images/Sereni_logo.png

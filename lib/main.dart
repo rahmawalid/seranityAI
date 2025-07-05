@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Add this import
 import 'package:ui_screens_grad/constants/functions.dart';
-import 'package:ui_screens_grad/screens/DoctorModule/home.dart';
-
-import 'screens/DoctorModule/signup_personal_screen.dart';
-import 'models/doctor.dart';
+import 'package:ui_screens_grad/screens/DoctorModule/doctor_main_layout.dart';
+import 'package:ui_screens_grad/screens/DoctorModule/signup_personal_screen.dart';
+import 'package:ui_screens_grad/models/doctor_model.dart';
+import 'package:ui_screens_grad/services/doctor_notes_service.dart'; // Add this import
 
 void main() {
   runApp(
@@ -47,11 +48,22 @@ class _MyAppState extends State<MyApp> {
       );
     }
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: doctor != null
-          ? const DoctorHomePage()
-          : const SignupPersonalScreen(),
+    return MultiProvider(
+      providers: [
+        // Doctor Notes Service Provider
+        ChangeNotifierProvider(
+          create: (_) => DoctorNotesService(),
+        ),
+        // Add other providers here if you have them
+        // Example:
+        // ChangeNotifierProvider(create: (_) => SomeOtherService()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: doctor != null
+            ? const UnifiedDoctorLayout() // Updated to use the new unified layout
+            : const SignupPersonalScreen(),
+      ),
     );
   }
 }

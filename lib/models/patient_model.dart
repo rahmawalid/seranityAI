@@ -42,8 +42,7 @@ class ContactInformation {
       email: json['email'] as String?,
       phoneNumber: json['phone_number'] as String?,
       emergencyContact: json['emergency_contact'] != null
-          ? EmergencyContact.fromJson(
-              json['emergency_contact'] as Map<String, dynamic>)
+          ? EmergencyContact.fromJson(json['emergency_contact'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -129,7 +128,11 @@ class PersonalInfo {
     this.therapyInfo,
   });
 
-  factory PersonalInfo.fromJson(Map<String, dynamic> json) {
+  factory PersonalInfo.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return PersonalInfo();
+    }
+    
     return PersonalInfo(
       fullName: json['fullName'] as String?,
       dateOfBirth: json['dateOfBirth'] as String?,
@@ -138,8 +141,7 @@ class PersonalInfo {
       maritalStatus: json['marital_status'] as String?,
       location: json['location'] as String?,
       contactInformation: json['contact_information'] != null
-          ? ContactInformation.fromJson(
-              json['contact_information'] as Map<String, dynamic>)
+          ? ContactInformation.fromJson(json['contact_information'] as Map<String, dynamic>)
           : null,
       healthInfo: json['health_info'] != null
           ? HealthInfo.fromJson(json['health_info'] as Map<String, dynamic>)
@@ -164,7 +166,7 @@ class PersonalInfo {
 }
 
 class Session {
-  final int sessionId;
+  final int? sessionId;
   final String? featureType;
   final DateTime? date;
   final String? time;
@@ -172,14 +174,15 @@ class Session {
   final String? sessionType;
   final String? text;
   final String? report;
-  final String? doctorNotes;
+  final String? transcription;
+  final List<String>? doctorNotesImages;
   final Map<String, dynamic>? featureData;
   final String? audioFiles;
   final String? videoFiles;
   final Map<String, String>? modelFiles;
 
   Session({
-    required this.sessionId,
+    this.sessionId,
     this.featureType,
     this.date,
     this.time,
@@ -187,30 +190,88 @@ class Session {
     this.sessionType,
     this.text,
     this.report,
-    this.doctorNotes,
+    this.transcription,
+    this.doctorNotesImages,
     this.featureData,
     this.audioFiles,
     this.videoFiles,
     this.modelFiles,
   });
 
-  factory Session.fromJson(Map<String, dynamic> json) {
+  // Safe helper methods
+  static String? _safeParseObjectId(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value.isEmpty ? null : value;
+    if (value is Map && value.containsKey(r'$oid')) {
+      final oid = value[r'$oid'];
+      return oid is String && oid.isNotEmpty ? oid : null;
+    }
+    return value.toString().isEmpty ? null : value.toString();
+  }
+
+  static List<String>? _safeParseStringList(dynamic value) {
+    if (value == null) return null;
+    if (value is! List) return null;
+    
+    final result = <String>[];
+    for (final item in value) {
+      final parsed = _safeParseObjectId(item);
+      if (parsed != null && parsed.isNotEmpty) {
+        result.add(parsed);
+      }
+    }
+    return result.isEmpty ? null : result;
+  }
+
+  static DateTime? _safeParseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is! String) return null;
+    if (value.isEmpty) return null;
+    
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Map<String, String>? _safeParseStringMap(dynamic value) {
+    if (value == null) return null;
+    if (value is! Map) return null;
+    
+    final result = <String, String>{};
+    for (final entry in value.entries) {
+      if (entry.key is String) {
+        final parsedValue = _safeParseObjectId(entry.value);
+        if (parsedValue != null) {
+          result[entry.key as String] = parsedValue;
+        }
+      }
+    }
+    return result.isEmpty ? null : result;
+  }
+
+  factory Session.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return Session();
+    }
+
     return Session(
-      sessionId: json['session_id'] as int,
+      sessionId: json['session_id'] as int?,
       featureType: json['featureType'] as String?,
-      date:
-          json['date'] != null ? DateTime.parse(json['date'] as String) : null,
+      date: _safeParseDate(json['date']),
       time: json['time'] as String?,
       duration: json['duration'] as String?,
       sessionType: json['sessionType'] as String?,
       text: json['text'] as String?,
-      report: json['report'] as String?,
-      doctorNotes: json['doctorNotes'] as String?,
+      report: _safeParseObjectId(json['report']),
+      transcription: _safeParseObjectId(json['transcription']),
+      doctorNotesImages: _safeParseStringList(json['doctorNotesImages']) ?? 
+                        _safeParseStringList(json['doctor_notes_images']),
       featureData: json['featureData'] as Map<String, dynamic>?,
-      audioFiles: json['audioFiles'] as String?,
-      videoFiles: json['videoFiles'] as String?,
-      modelFiles: (json['model_files'] as Map<String, dynamic>?)
-          ?.map((k, v) => MapEntry(k, v as String)),
+      audioFiles: _safeParseObjectId(json['audioFiles']),
+      videoFiles: _safeParseObjectId(json['videoFiles']),
+      modelFiles: _safeParseStringMap(json['model_files']),
     );
   }
 
@@ -223,7 +284,8 @@ class Session {
         'sessionType': sessionType,
         'text': text,
         'report': report,
-        'doctorNotes': doctorNotes,
+        'transcription': transcription,
+        'doctorNotesImages': doctorNotesImages,
         'featureData': featureData,
         'audioFiles': audioFiles,
         'videoFiles': videoFiles,
@@ -232,7 +294,7 @@ class Session {
 }
 
 class Patient {
-  final int patientID;
+  final String? patientID;
   final String? doctorID;
   final PersonalInfo personalInfo;
   final DateTime? registrationDate;
@@ -240,40 +302,61 @@ class Patient {
   final List<Session> sessions;
 
   Patient({
-    required this.patientID,
+    this.patientID,
+    this.doctorID,
     required this.personalInfo,
     this.registrationDate,
     this.status,
     this.sessions = const [],
-    this.doctorID,
   });
 
-  factory Patient.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(String? input) {
-      if (input == null) return null;
+  // Safe helper methods for Patient
+  static DateTime? _safeParseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is! String) return null;
+    if (value.isEmpty) return null;
+    
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
       try {
-        return DateTime.parse(input);
+        return HttpDate.parse(value);
       } catch (_) {
-        // fallback for RFC-1123 strings like "Thu, 01 May 2025 09:00:00 GMT"
+        return null;
+      }
+    }
+  }
+
+  static List<Session> _safeParseSessions(dynamic value) {
+    if (value == null) return [];
+    if (value is! List) return [];
+    
+    final result = <Session>[];
+    for (final item in value) {
+      if (item is Map<String, dynamic>) {
         try {
-          return HttpDate.parse(input);
-        } catch (_) {
-          return null;
+          result.add(Session.fromJson(item));
+        } catch (e) {
+          // Skip invalid session, don't fail the entire patient parsing
+          print('Warning: Failed to parse session: $e');
         }
       }
     }
+    return result;
+  }
+
+  factory Patient.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      throw ArgumentError('Patient JSON cannot be null');
+    }
 
     return Patient(
-      patientID: json['patientID'] as int,
-      doctorID: json['doctorID'] as String,
-      personalInfo:
-          PersonalInfo.fromJson(json['personalInfo'] as Map<String, dynamic>),
-      registrationDate: parseDate(json['registration_date'] as String?),
+      patientID: json['patientID'] as String?,
+      doctorID: json['doctorID'] as String?,
+      personalInfo: PersonalInfo.fromJson(json['personalInfo'] as Map<String, dynamic>?),
+      registrationDate: _safeParseDate(json['registration_date']),
       status: json['status'] as String?,
-      sessions: (json['sessions'] as List<dynamic>?)
-              ?.map((e) => Session.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      sessions: _safeParseSessions(json['sessions']),
     );
   }
 
